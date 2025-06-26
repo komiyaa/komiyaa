@@ -1,2 +1,1 @@
-
-Discord --> komyke
+uhh
