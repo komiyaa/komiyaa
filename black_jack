@@ -1,0 +1,133 @@
+import random
+
+def banking():
+    with open("bj_balance.txt", "r") as file:
+        for line in file:
+            fake = line.strip()
+            balance = float(fake)
+            return balance
+
+def start():
+    balance = banking()
+    balance = float(balance)
+    '''opening the balance in an extern txt file and 
+        reading it to get the balance'''
+
+    '''writing bet in a file to acces to it later'''
+        
+    while True:
+        if balance == 0:
+                print("\nYou are broke lmao, here is some change\n")
+                balance += 50
+        try:
+            bet = float(input(f"your balance: {balance:.2f}$\nYour bet: "))
+            if bet <= balance:
+                with open("bj_bet.txt", "w") as file:
+                    file.write(str(bet))
+                    new_bet = bet * 2
+                    print(f"Your bet: {bet}$ and dealer adds the same amount\non the line are {new_bet}$\n")
+                    return bet, balance
+        except ValueError:
+            print("\nOnly numbers or bet should be in your budget\n")
+
+def blackjack():
+    bet, balance = start()
+    '''Storing all the data needed for the game'''
+    while True:
+        cards = [1,2,3,4,5,6,7,8,9,10,11]
+        my_cards = []
+        dealer_cards = []
+
+        '''Gives the player and the dealer 2 cards in the beginning
+            and removes it from the list'''
+
+        for _ in range(2):
+            my_card = random.choice(cards)
+            my_cards.append(my_card)
+            cards.remove(my_card)
+
+            dealer_card = random.choice(cards)
+            dealer_cards.append(dealer_card)
+            cards.remove(dealer_card)
+
+
+        '''Shows on the terminal what the player and dealer got'''
+
+        while True:
+            dealer_summed_cards = sum(dealer_cards)
+            my_summed_cards = sum(my_cards)
+            print(f"\ndealer cards: [{dealer_cards[0]}] and {len(dealer_cards) - 1} other cards ")
+            print(f"your cards: {my_cards} = {my_summed_cards}")
+            choice = input("hit or pass?: ").lower()
+
+            '''if user choice is hit, user gets card else it continues'''
+
+            if choice == "hit":
+                my_card = random.choice(cards)
+                my_cards.append(my_card)
+                cards.remove(my_card)
+
+            elif choice == "pass":
+                break
+
+        '''Dealer AI, if dealer cards < 17, then takes cards until >= 17'''
+
+        while True:
+            dealer_summed_cards = sum(dealer_cards)
+
+            if dealer_summed_cards >= 17:
+                break
+
+            else:
+                dealer_card = random.choice(cards)
+                dealer_cards.append(dealer_card)
+                cards.remove(dealer_card)
+                print(f"\nDealer Took a card.\n")
+
+        '''Shows all the cards and determinates who won'''
+
+        print(f"dealer: {dealer_summed_cards}\nyou: {my_summed_cards}")
+
+        if my_summed_cards == dealer_summed_cards or my_summed_cards > 21 and dealer_summed_cards > 21:
+            print("Draw")
+            after_balance = balance + 0
+
+        elif my_summed_cards > 21 or dealer_summed_cards < 21 and my_summed_cards < dealer_summed_cards:
+            print("You lost")
+            after_balance = balance - bet
+        
+        elif my_summed_cards == dealer_summed_cards or my_summed_cards > 21 and dealer_summed_cards > 21:
+            print("Draw")
+            after_balance = balance + 0
+
+        elif my_summed_cards == 21 or my_summed_cards <= 21 and my_summed_cards >= dealer_summed_cards or dealer_summed_cards > 21 and my_summed_cards < 21:
+            print("You won!")
+            after_balance = bet + balance
+
+        elif my_summed_cards > 21 or dealer_summed_cards <= 21 and my_summed_cards < dealer_summed_cards:
+            print("You lost")
+            after_balance = balance - bet
+
+        else:
+            print("You won")
+            after_balance = bet + balance
+
+
+        '''User choice to play again'''
+        string_balance = str(after_balance)
+
+        with open("bj_balance.txt", "w") as file:
+            file.write(string_balance)
+
+        print(f"New Balance: {after_balance:.2f}$")
+
+        while True:
+            again = input("Wanna play again? (y/n): ")
+            if again == "y":
+                return blackjack()
+
+            elif again == "n":
+                print("Goodbye.")
+                exit()
+
+blackjack()
